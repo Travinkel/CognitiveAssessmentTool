@@ -1,92 +1,117 @@
 import pygame
 import random
 import time
-import csv
+import json
+import os
 
-# Initialize Pygame
+# Initialize pygame
 pygame.init()
 
-# Screen settings
+# Screen setup
 WIDTH, HEIGHT = 800, 600
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
-pygame.display.set_caption("Scientific Stroop Test")
+pygame.display.set_caption("Stroop Test")
 
-# Font settings
-font = pygame.font.Font(None, 80)
-instruction_font = pygame.font.Font(None, 30)
-
-# Colors for test
-COLORS = {
-    "RED": (255, 0, 0),
-    "BLUE": (0, 0, 255),
-    "GREEN": (0, 255, 0),
-    "YELLOW": (255, 255, 0),
-    "BLACK": (0, 0, 0),
-    "WHITE": (255, 255, 255)
+# Colors
+COLOR_MAP = {
+    "Red": (255, 0, 0),
+    "Green": (0, 255, 0),
+    "Blue": (0, 0, 255),
+    "Yellow": (255, 255, 0)
 }
 
-# Word-color pairs
-WORDS = ["RED", "BLUE", "GREEN", "YELLOW"]
-EMOTIONAL_WORDS = ["ANGER", "MURDER", "FEAR", "DEATH"]  # Emotional Stroop
-NEUTRAL_WORDS = ["CHAIR", "TABLE", "PENCIL", "WATER"]  # Control
+COLOR_NAMES = list(COLOR_MAP.keys())
 
-RESPONSES = {"r": "RED", "b": "BLUE", "g": "GREEN", "y": "YELLOW"}
+# Font
+font = pygame.font.Font(None, 72)
 
-# Store results
-results = []
-
-def show_stimulus(text, color):
-    """ Displays word stimulus in the center of the screen """
-    screen.fill(COLORS["WHITE"])
-    rendered_text = font.render(text, True, COLORS[color])
-    screen.blit(rendered_text, (WIDTH // 3, HEIGHT // 3))
+# Instructions
+def show_instructions():
+    screen.fill((0, 0, 0))
+    instructions = [
+        "STROOP TEST",
+        "Identify the color of the word, NOT the word itself.",
+        "Press: R for Red, G for Green, B for Blue, Y for Yellow.",
+        "Press SPACE to start."
+    ]
+    for i, text in enumerate(instructions):
+        rendered_text = font.render(text, True, (255, 255, 255))
+        screen.blit(rendered_text, (50, 100 + (i * 80)))
     pygame.display.flip()
 
-def run_stroop_test(condition="color-word"):
-    """ Main Stroop Test Function """
-    running = True
-    trial_count = 10  # Set a limited number of trials
-    for _ in range(trial_count):
-        # Choose condition
-        if condition == "color-word":
-            word = random.choice(WORDS)
-            color = random.choice(list(COLORS.keys())[:4])
-        elif condition == "emotional":
-            word = random.choice(EMOTIONAL_WORDS + NEUTRAL_WORDS)
-            color = "BLACK"  # Emotional test uses black text
+# Test function
+def stroop_test():
+    show_instructions()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                waiting = False
 
-        show_stimulus(word, color)
-        
-        # Start timing
+    # Experiment setup
+    trials = 10
+    results = []
+    
+    for _ in range(trials):
+        word = random.choice(COLOR_NAMES)
+        color_name = random.choice(COLOR_NAMES)
+        color = COLOR_MAP[color_name]
+
+        # Display word
+        screen.fill((0, 0, 0))
+        text = font.render(word, True, color)
+        screen.blit(text, (WIDTH // 2 - text.get_width() // 2, HEIGHT // 2))
+        pygame.display.flip()
+
+        # Time measurement
         start_time = time.time()
         response = None
 
         while response is None:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    running = False
                     pygame.quit()
                     return
-                
                 if event.type == pygame.KEYDOWN:
-                    key_pressed = pygame.key.name(event.key)
-                    if key_pressed in RESPONSES:
-                        response_time = time.time() - start_time
-                        correct = RESPONSES[key_pressed] == color
-                        results.append([word, color, RESPONSES[key_pressed], correct, round(response_time, 3)])
-                        response = key_pressed
+                    key_map = {
+                        pygame.K_r: "Red",
+                        pygame.K_g: "Green",
+                        pygame.K_b: "Blue",
+                        pygame.K_y: "Yellow"
+                    }
+                    if event.key in key_map:
+                        response = key_map[event.key]
+                        reaction_time = time.time() - start_time
+                        results.append({
+                            "word": word,
+                            "color": color_name,
+                            "response": response,
+                            "correct": response == color_name,
+                            "reaction_time": reaction_time
+                        })
 
-        pygame.time.delay(1000)  # Short delay before next trial
+        time.sleep(0.5)
 
     # Save results
-    with open("data/results.csv", "w", newline="") as file:
-        writer = csv.writer(file)
-        writer.writerow(["Word", "Color", "User Response", "Correct", "Response Time"])
-        writer.writerows(results)
+    save_results(results)
+    pygame.quit()
 
-    print("Results saved to data/results.csv")
+# Save results to JSON
+def save_results(results):
+    file_path = os.path.join("data", "results.json")
+    if os.path.exists(file_path):
+        with open(file_path, "r") as file:
+            data = json.load(file)
+    else:
+        data = {}
+
+    data["stroop_test"] = results
+
+    with open(file_path, "w") as file:
+        json.dump(data, file, indent=4)
+
+    print("\nResults saved to 'data/results.json'.")
 
 # Run test
 if __name__ == "__main__":
-    # Choose "color-word" or "emotional"
-    run_stroop_test(condition="color-word")  # Or change to "emotional"
+    stroop_test()

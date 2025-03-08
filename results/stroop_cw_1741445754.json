@@ -1,0 +1,74 @@
+{
+    "stroop_test": [
+        {
+            "word": "Green",
+            "color": "Red",
+            "response": "Red",
+            "correct": true,
+            "reaction_time": 1.2706294059753418
+        },
+        {
+            "word": "Yellow",
+            "color": "Yellow",
+            "response": "Yellow",
+            "correct": true,
+            "reaction_time": 1.1848833560943604
+        },
+        {
+            "word": "Green",
+            "color": "Red",
+            "response": "Red",
+            "correct": true,
+            "reaction_time": 0.8912878036499023
+        },
+        {
+            "word": "Red",
+            "color": "Red",
+            "response": "Red",
+            "correct": true,
+            "reaction_time": 0.5457983016967773
+        },
+        {
+            "word": "Green",
+            "color": "Green",
+            "response": "Green",
+            "correct": true,
+            "reaction_time": 0.5855624675750732
+        },
+        {
+            "word": "Red",
+            "color": "Blue",
+            "response": "Blue",
+            "correct": true,
+            "reaction_time": 0.6542356014251709
+        },
+        {
+            "word": "Yellow",
+            "color": "Yellow",
+            "response": "Red",
+            "correct": false,
+            "reaction_time": 0.5863988399505615
+        },
+        {
+            "word": "Green",
+            "color": "Yellow",
+            "response": "Yellow",
+            "correct": true,
+            "reaction_time": 0.7683863639831543
+        },
+        {
+            "word": "Blue",
+            "color": "Red",
+            "response": "Red",
+            "correct": true,
+            "reaction_time": 1.0292234420776367
+        },
+        {
+            "word": "Green",
+            "color": "Green",
+            "response": "Green",
+            "correct": true,
+            "reaction_time": 0.5720944404602051
+        }
+    ]
+}
